@@ -1,9 +1,12 @@
+# analise_cdi.py
+
 import pandas as pd
-import cybor as cb
+import seaborn as sns
 import requests, os, time, json
 from datetime import datetime
 from random import random
 from sys import argv
+import matplotlib.pyplot as plt
 
 URL = 'https://api.bcb.gov.br/dados/serie/bcdata.sgs.4392/dados'
 
@@ -28,18 +31,18 @@ def extrair_dados():
 
     print("✅ Dados salvos em taxa-cdi.csv")
 
-def analisar_dados(nome_relatorio="relatorio_cdi"):
+def analisar_dados(nome_grafico="grafico_cdi"):
     df = pd.read_csv('taxa-cdi.csv')
-    print("📈 Primeiras linhas:\n", df.head())
+    print("📊 Primeiras linhas dos dados:\n", df.head())
 
-    relatorio = cb.analyze(df)
-    print("\n🧠 Resumo da análise:")
-    print(relatorio.summary())
+    grafico = sns.lineplot(x=df['hora'], y=df['taxa'])
+    _ = grafico.set_xticklabels(labels=df['hora'], rotation=90)
+    grafico.get_figure().savefig(f"{nome_grafico}.png")
 
-    relatorio.to_html(f"{nome_relatorio}.html")
-    print(f"\n✅ Relatório salvo como {nome_relatorio}.html")
+    print(f"📈 Gráfico salvo como {nome_grafico}.png")
+    plt.show()
 
 if __name__ == "__main__":
-    nome = argv[1] if len(argv) > 1 else "relatorio_cdi"
+    nome = argv[1] if len(argv) > 1 else "grafico_cdi"
     extrair_dados()
     analisar_dados(nome)

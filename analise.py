@@ -1,16 +1,18 @@
 import pandas as pd
-import cybor as cb
-import requests
+import seaborn as sns
+import requests, os, time, json
 from datetime import datetime
 from random import random
-import time, os, json
+import matplotlib.pyplot as plt
 
 URL = 'https://api.bcb.gov.br/dados/serie/bcdata.sgs.4392/dados'
 
+# Coleta os dados do Banco Central
 response = requests.get(URL)
 dado = json.loads(response.text)[-1]['valor']
 
-for _ in range(5): 
+# Gera 5 registros simulando coletas
+for _ in range(5):
     data = datetime.now().strftime('%Y/%m/%d')
     hora = datetime.now().strftime('%H:%M:%S')
     cdi = float(dado) + (random() - 0.5)
@@ -26,11 +28,14 @@ for _ in range(5):
 
 print("✅ Dados coletados e salvos em taxa-cdi.csv")
 
+# Lê o CSV com o Pandas
 df = pd.read_csv('taxa-cdi.csv')
 print(df.head())
 
-relatorio = cb.analyze(df)
-print(relatorio.summary())
+# Cria o gráfico com Seaborn
+grafico = sns.lineplot(x=df['hora'], y=df['taxa'])
+_ = grafico.set_xticklabels(labels=df['hora'], rotation=90)
+grafico.get_figure().savefig("grafico_cdi.png")
 
-relatorio.to_html("relatorio_cdi.html")
-print("📊 Relatório gerado: relatorio_cdi.html")
+print("📈 Gráfico gerado: grafico_cdi.png")
+plt.show()
